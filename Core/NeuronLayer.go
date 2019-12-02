@@ -23,11 +23,10 @@ type LayerState struct {
 }
 
 var oneMainType NetDataType = 1
-var zeroMainType NetDataType = 0
 
 func CreateNeuronLayer(inputCount int, outputCount int, activator *ActivatorClass) *NeuronLayer {
 	if activator == nil {
-		activator = &LinearActivator
+		activator = CreateLinearActivator()
 	}
 	res := NeuronLayer{
 		neurons:   make([]*Neuron, outputCount),
@@ -178,7 +177,7 @@ func ImportNeuronLayer(state LayerState) *NeuronLayer {
 		activator = CreateLinearActivator()
 	}
 	if activator == nil {
-		activator = &LinearActivator
+		activator = CreateLinearActivator()
 	}
 	outputCount := state.OutputLength
 	inputCount := state.InputLength

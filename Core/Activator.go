@@ -81,6 +81,3 @@ func CreateStepActivator() *ActivatorClass {
 	var res ActivatorClass = StepActivatorClass{}
 	return &res
 }
-
-var LinearActivator ActivatorClass = LinearActivatorClass{}
-var DefaultStepActivator ActivatorClass = StepActivatorClass{}
