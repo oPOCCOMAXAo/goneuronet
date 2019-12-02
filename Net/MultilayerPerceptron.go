@@ -19,15 +19,13 @@ type MultilayerPerceptron struct {
 	inputLayer   *Core.NeuronLayer
 }
 
+// [inputData neurons output]
 func CreateMultilayerPerceptron(eachLayerLength ...int) *MultilayerPerceptron {
-	// [inputData neurons output]
 	lc := len(eachLayerLength)
 	layers := make([]*Core.NeuronLayer, lc-1)
 	buffers := make([]Core.IOVector, lc)
 	activator := Core.CreateHardSigmoidActivatorClass() // Core.CreateSigmoidActivator()
-
 	buffers[0] = Core.CreateIOVectorByLength(eachLayerLength[0])
-
 	for i := 0; i < lc-1; i++ {
 		layer := Core.CreateNeuronLayer(eachLayerLength[i], eachLayerLength[i+1], activator)
 		buffer := Core.CreateIOVectorByLength(eachLayerLength[i+1])
@@ -36,7 +34,6 @@ func CreateMultilayerPerceptron(eachLayerLength ...int) *MultilayerPerceptron {
 		layers[i] = layer
 		buffers[i+1] = buffer
 	}
-
 	return &MultilayerPerceptron{
 		layerc:       lc,
 		neuronLayers: layers,
@@ -95,7 +92,6 @@ func (m *MultilayerPerceptron) Train(samples Core.SampleArray, speed Core.NetDat
 	buffer := m.buffers[last]
 	dErr := deltaErr[last]
 	count := m.layersLength[last]
-
 	var gError Core.NetDataType
 	for e := 0; e < epochs; e++ {
 		samples.Shuffle()
@@ -103,12 +99,10 @@ func (m *MultilayerPerceptron) Train(samples Core.SampleArray, speed Core.NetDat
 		for _, s := range samples {
 			m.assignInput(s.In)
 			m.evaluate()
-			// output layer error
 			for i := 0; i < count; i++ {
 				dErr[i] = buffer[i] - s.Out[i]
 				gError += Core.Abs(dErr[i])
 			}
-			// hidden layer error
 			for i := last - 1; i >= 0; i-- {
 				m.neuronLayers[i].BackPropagate(deltaErr[i+1], speed, deltaErr[i])
 			}
@@ -137,28 +131,20 @@ func (m *MultilayerPerceptron) Export() NetState {
 }
 
 func ImportMultilayerPerceptron(state NetState) *MultilayerPerceptron {
-	// [inputData neurons output]
-
 	lc := len(state.Layers) + 1
 	eachLayerLength := make([]int, lc)
 	layers := make([]*Core.NeuronLayer, lc-1)
 	buffers := make([]Core.IOVector, lc)
-
 	eachLayerLength[0] = state.Layers[0].InputLength
 	buffers[0] = Core.CreateIOVectorByLength(eachLayerLength[0])
-
 	for i := 0; i < lc-1; i++ {
 		layer := Core.ImportNeuronLayer(state.Layers[i])
 		eachLayerLength[i+1] = state.Layers[i].OutputLength
 		buffer := Core.CreateIOVectorByLength(eachLayerLength[i+1])
-		//layer.ConnectToInput(buffers[i])
-		//layer.ConnectToOutput(buffer)
 		layers[i] = layer
 		buffers[i+1] = buffer
 	}
 	for _, conn := range state.Connections {
-		//var inBuffer = buffers[conn.InputId+1]
-		//var outBuffer = buffers[conn.OutputId+1]
 		if conn.OutputId > -1 {
 			layers[conn.OutputId].ConnectToInput(buffers[conn.InputId+1])
 		} else {
@@ -168,7 +154,6 @@ func ImportMultilayerPerceptron(state NetState) *MultilayerPerceptron {
 			layers[conn.InputId].ConnectToOutput(buffers[conn.OutputId])
 		}
 	}
-
 	return &MultilayerPerceptron{
 		layerc:       lc,
 		neuronLayers: layers,
