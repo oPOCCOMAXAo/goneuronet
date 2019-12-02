@@ -1,8 +1,8 @@
 package Core
 
 type ActivatorClass interface {
-	F(NetDataType) NetDataType
-	D(NetDataType) NetDataType
+	F(NetDataType) NetDataType // forward Function
+	D(NetDataType) NetDataType // backward Derivative
 }
 
 type SigmoidActivatorClass struct{}
