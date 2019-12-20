@@ -24,7 +24,7 @@ func CreateMultilayerPerceptron(eachLayerLength ...int) *MultilayerPerceptron {
 	lc := len(eachLayerLength)
 	layers := make([]*Core.NeuronLayer, lc-1)
 	buffers := make([]Core.IOVector, lc)
-	activator := Core.CreateHardSigmoidActivatorClass() // Core.CreateSigmoidActivator()
+	activator := Core.CreateSigmoidActivator() // Core.CreateHardSigmoidActivatorClass() //
 	buffers[0] = Core.CreateIOVectorByLength(eachLayerLength[0])
 	for i := 0; i < lc-1; i++ {
 		layer := Core.CreateNeuronLayer(eachLayerLength[i], eachLayerLength[i+1], activator)
