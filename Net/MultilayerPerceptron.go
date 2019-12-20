@@ -83,7 +83,7 @@ func (m *MultilayerPerceptron) ToString() string {
 	return strings.Join(res, "\n\n")
 }
 
-func (m *MultilayerPerceptron) Train(samples Core.SampleArray, speed Core.NetDataType, epochs int, maxError Core.NetDataType) {
+func (m *MultilayerPerceptron) Train(samples Core.SampleArray, epochs int, maxError Core.NetDataType) {
 	deltaErr := make([]Core.IOVector, m.layerc)
 	last := m.layerc - 1
 	for i := last; i >= 0; i-- {
@@ -104,7 +104,7 @@ func (m *MultilayerPerceptron) Train(samples Core.SampleArray, speed Core.NetDat
 				gError += Core.Abs(dErr[i])
 			}
 			for i := last - 1; i >= 0; i-- {
-				m.neuronLayers[i].BackPropagate(deltaErr[i+1], speed, deltaErr[i])
+				m.neuronLayers[i].BackPropagate(deltaErr[i+1], s.Speed, deltaErr[i])
 			}
 		}
 		fmt.Printf("#%d: Error = %f\n", e, gError)

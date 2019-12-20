@@ -42,7 +42,7 @@ func (p *Perceptron) Solve(input Core.IOVector) Core.IOVector {
 	return Core.CreateIOVector(p.solve(input))
 }
 
-func (p *Perceptron) Train(samples Core.SampleArray, speed Core.NetDataType, epochs int, maxError Core.NetDataType) {
+func (p *Perceptron) Train(samples Core.SampleArray, epochs int, maxError Core.NetDataType) {
 	dErr := Core.CreateIOVectorByLength(1)
 	dErrNext := Core.CreateIOVectorByLength(p.size + 1)
 	var gError Core.NetDataType
@@ -53,7 +53,7 @@ func (p *Perceptron) Train(samples Core.SampleArray, speed Core.NetDataType, epo
 			res := p.solve(s.In)
 			dErr[0] = res - s.Out[0]
 			gError += Core.Abs(dErr[0])
-			p.neuronLayer.BackPropagate(dErr, speed, dErrNext)
+			p.neuronLayer.BackPropagate(dErr, s.Speed, dErrNext)
 		}
 		fmt.Printf("#%d: Error = %f\n", e, gError)
 		if gError <= maxError {

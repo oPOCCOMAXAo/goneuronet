@@ -9,12 +9,17 @@ import (
 type IOVector []NetDataType
 
 type Sample struct {
-	In  IOVector
-	Out IOVector
+	In    IOVector
+	Out   IOVector
+	Speed NetDataType
 }
 
 func CreateSample(input IOVector, output IOVector) Sample {
-	return Sample{In: input, Out: output}
+	return Sample{In: input, Out: output, Speed: 1}
+}
+
+func CreateSampleWithSpeed(input IOVector, output IOVector, speed NetDataType) Sample {
+	return Sample{In: input, Out: output, Speed: speed}
 }
 
 func CreateIOVector(array ...NetDataType) IOVector {
