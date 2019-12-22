@@ -14,7 +14,7 @@ func TestPerceptron(t *testing.T) {
 	samples = append(samples, Core.CreateSample(Core.CreateIOVector(0, 1), Core.CreateIOVector(0)))
 	samples = append(samples, Core.CreateSample(Core.CreateIOVector(1, 1), Core.CreateIOVector(1)))
 	p.InitConst(0.5)
-	p.Train(samples, 0.1, 100, 0)
+	p.Train(samples, 100, 0)
 	fmt.Printf("%v\n", p.ToString())
 	for _, s := range samples {
 		solved := p.Solve(s.In)[0]

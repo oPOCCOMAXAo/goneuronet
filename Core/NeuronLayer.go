@@ -6,10 +6,10 @@ import (
 
 type NeuronLayer struct {
 	neurons   []*Neuron
-	input     []*NetDataType
-	output    []*NetDataType
+	input     IOVector
+	output    IOVector
 	sum       IOVector
-	activator *ActivatorClass
+	activator ActivatorClass
 	inCount   int
 	outCount  int
 }
@@ -22,67 +22,51 @@ type LayerState struct {
 	OutputLength int           `json:"output_length"`
 }
 
-var oneMainType NetDataType = 1
-
-func CreateNeuronLayer(inputCount int, outputCount int, activator *ActivatorClass) *NeuronLayer {
+func CreateNeuronLayer(inputCount int, outputCount int, activator ActivatorClass) *NeuronLayer {
 	if activator == nil {
-		activator = CreateLinearActivator()
+		activator = *CreateLinearActivator()
 	}
 	res := NeuronLayer{
 		neurons:   make([]*Neuron, outputCount),
-		input:     make([]*NetDataType, inputCount+1),
-		output:    make([]*NetDataType, outputCount),
+		input:     CreateIOVectorByLength(inputCount),
+		output:    CreateIOVectorByLength(outputCount),
 		sum:       CreateIOVectorByLength(outputCount),
-		inCount:   inputCount + 1,
+		inCount:   inputCount,
 		outCount:  outputCount,
 		activator: activator,
 	}
-	for i := 0; i < inputCount; i++ {
-		res.input[i] = new(NetDataType)
-	}
-	res.input[inputCount] = &oneMainType
 	for i := 0; i < outputCount; i++ {
-		res.output[i] = new(NetDataType)
-		res.neurons[i] = CreateNeuron(inputCount + 1)
+		res.neurons[i] = CreateNeuron(inputCount)
 	}
 	return &res
 }
 
+func (nl *NeuronLayer) SetActivator(class ActivatorClass) {
+	nl.activator = class
+}
+
 func (nl *NeuronLayer) ConnectToInput(inputArray IOVector) {
-	max := nl.inCount
-	l := len(inputArray)
-	if l < max {
-		max = l
-	}
-	for i := 0; i < max; i++ {
-		nl.input[i] = &inputArray[i]
-	}
+	nl.input = inputArray[:]
 }
 
 func (nl *NeuronLayer) ConnectToOutput(outputArray IOVector) {
-	max := nl.outCount
-	l := len(outputArray)
-	if l < max {
-		max = l
-	}
-	for i := 0; i < max; i++ {
-		nl.output[i] = &outputArray[i]
-	}
+	nl.output = outputArray[:]
 }
 
 func (nl *NeuronLayer) Evaluate() {
 	for i := 0; i < nl.outCount; i++ {
-		weights := nl.neurons[i].Weight
+		n := nl.neurons[i]
 		var sum NetDataType = 0
 		for j := 0; j < nl.inCount; j++ {
-			sum += weights[j] * *nl.input[j]
+			sum += n.Weight[j] * nl.input[j]
 		}
+		sum += n.Bias
 		nl.sum[i] = sum
-		*nl.output[i] = (*nl.activator).F(sum)
+		nl.output[i] = nl.activator.F(sum)
 	}
 }
 
-func (nl *NeuronLayer) EvaluateGet() []*NetDataType {
+func (nl *NeuronLayer) EvaluateGet() IOVector {
 	nl.Evaluate()
 	return nl.output
 }
@@ -111,7 +95,7 @@ func (nl *NeuronLayer) BackPropagate(deltaError IOVector, speed NetDataType, del
 	//mult := 1.0 / NetDataType(nl.inCount)
 	for i := 0; i < nl.outCount; i++ {
 		weights := nl.neurons[i].Weight
-		deltaError[i] *= (*nl.activator).D(nl.sum[i])
+		deltaError[i] *= nl.activator.D(nl.sum[i])
 		dE := deltaError[i]
 		for j := 0; j < nl.inCount; j++ {
 			deltaErrNext[j] += dE * weights[j]
@@ -119,21 +103,23 @@ func (nl *NeuronLayer) BackPropagate(deltaError IOVector, speed NetDataType, del
 	}
 	//speed *= mult
 	for i := 0; i < nl.outCount; i++ {
-		weights := nl.neurons[i].Weight
+		n := nl.neurons[i]
 		e := speed * deltaError[i]
 		for j := 0; j < nl.inCount; j++ {
-			weights[j] -= e * *nl.input[j]
+			n.Weight[j] -= e * nl.input[j]
 		}
+		n.Bias -= e
 	}
 }
 
 func (nl *NeuronLayer) ToString() string {
 	res := make([]string, nl.outCount)
 	for i := 0; i < nl.outCount; i++ {
-		t := make([]string, nl.inCount)
+		t := make([]string, nl.inCount+1)
 		for j := 0; j < nl.inCount; j++ {
 			t[j] = FloatToFixed(nl.neurons[i].Weight[j])
 		}
+		t[nl.inCount] = FloatToFixed(nl.neurons[i].Bias)
 		res[i] = strings.Join(t, " ")
 	}
 	return strings.Join(res, "\n")
@@ -145,7 +131,7 @@ func (nl *NeuronLayer) Export(id int) LayerState {
 		ns[i] = nl.neurons[i].Export(i)
 	}
 	var activator string
-	switch (*nl.activator).(type) {
+	switch nl.activator.(type) {
 	case StepActivatorClass:
 		activator = "StepActivatorClass"
 	case SigmoidActivatorClass:
@@ -159,7 +145,7 @@ func (nl *NeuronLayer) Export(id int) LayerState {
 		Id:           id,
 		Neurons:      ns,
 		Activator:    activator,
-		InputLength:  nl.inCount - 1,
+		InputLength:  nl.inCount,
 		OutputLength: nl.outCount,
 	}
 }
@@ -183,19 +169,14 @@ func ImportNeuronLayer(state LayerState) *NeuronLayer {
 	inputCount := state.InputLength
 	res := NeuronLayer{
 		neurons:   make([]*Neuron, outputCount),
-		input:     make([]*NetDataType, inputCount+1),
-		output:    make([]*NetDataType, outputCount),
+		input:     CreateIOVectorByLength(inputCount),
+		output:    CreateIOVectorByLength(outputCount),
 		sum:       CreateIOVectorByLength(outputCount),
-		inCount:   inputCount + 1,
+		inCount:   inputCount,
 		outCount:  outputCount,
-		activator: activator,
+		activator: *activator,
 	}
-	for i := 0; i < inputCount; i++ {
-		res.input[i] = new(NetDataType)
-	}
-	res.input[inputCount] = &oneMainType
 	for i := 0; i < outputCount; i++ {
-		res.output[i] = new(NetDataType)
 		res.neurons[i] = ImportNeuron(state.Neurons[i])
 	}
 	return &res

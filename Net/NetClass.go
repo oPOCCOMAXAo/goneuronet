@@ -13,6 +13,7 @@ const Infinity = math.MaxInt64
 
 type NetClass interface {
 	Solve(input Core.IOVector) Core.IOVector
+	SetActivator(class Core.ActivatorClass)
 	Train(samples Core.SampleArray, numEpochs int, maxError Core.NetDataType)
 	Export() NetState
 }

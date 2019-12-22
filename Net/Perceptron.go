@@ -13,7 +13,7 @@ type Perceptron struct {
 
 func CreatePerceptron(inputCount int) *Perceptron {
 	res := &Perceptron{
-		neuronLayer: Core.CreateNeuronLayer(inputCount, 1, Core.CreateStepActivator()),
+		neuronLayer: Core.CreateNeuronLayer(inputCount, 1, *Core.CreateStepActivator()),
 		input:       Core.CreateIOVectorByLength(inputCount),
 		size:        inputCount,
 	}
@@ -27,7 +27,11 @@ func (p *Perceptron) assignInput(input Core.IOVector) {
 
 func (p *Perceptron) solve(input Core.IOVector) Core.NetDataType {
 	p.assignInput(input)
-	return *p.neuronLayer.EvaluateGet()[0]
+	return p.neuronLayer.EvaluateGet()[0]
+}
+
+func (p *Perceptron) SetActivator(class Core.ActivatorClass) {
+	p.neuronLayer.SetActivator(class)
 }
 
 func (p *Perceptron) InitRandom() {

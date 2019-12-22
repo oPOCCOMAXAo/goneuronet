@@ -27,7 +27,7 @@ func CreateMultilayerPerceptron(eachLayerLength ...int) *MultilayerPerceptron {
 	activator := Core.CreateSigmoidActivator() // Core.CreateHardSigmoidActivatorClass() //
 	buffers[0] = Core.CreateIOVectorByLength(eachLayerLength[0])
 	for i := 0; i < lc-1; i++ {
-		layer := Core.CreateNeuronLayer(eachLayerLength[i], eachLayerLength[i+1], activator)
+		layer := Core.CreateNeuronLayer(eachLayerLength[i], eachLayerLength[i+1], *activator)
 		buffer := Core.CreateIOVectorByLength(eachLayerLength[i+1])
 		layer.ConnectToInput(buffers[i])
 		layer.ConnectToOutput(buffer)
@@ -44,6 +44,12 @@ func CreateMultilayerPerceptron(eachLayerLength ...int) *MultilayerPerceptron {
 		layersLength: eachLayerLength,
 		outputLayer:  layers[lc-2],
 		inputLayer:   layers[0],
+	}
+}
+
+func (m *MultilayerPerceptron) SetActivator(class Core.ActivatorClass) {
+	for _, l := range m.neuronLayers {
+		l.SetActivator(class)
 	}
 }
 

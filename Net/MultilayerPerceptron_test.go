@@ -27,10 +27,11 @@ func CreateXORSamples() Core.SampleArray {
 
 func TestMultilayerPerceptronTrainSave(t *testing.T) {
 	m := CreateMultilayerPerceptron(2, 2, 1)
+	m.SetActivator(*Core.CreateHardSigmoidActivatorClass())
 	m.InitRandom()
 	samples := CreateXORSamples()
 	var maxError Core.NetDataType = 0.00001
-	m.Train(samples, 1, Infinity, maxError)
+	m.Train(samples, Infinity, maxError)
 	fmt.Printf("%v\n", m.ToString())
 	for _, s := range samples {
 		solved := m.Solve(s.In)
