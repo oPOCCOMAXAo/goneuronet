@@ -1,4 +1,4 @@
-package Core
+package core
 
 type Neuron struct {
 	Weight IOVector
@@ -6,7 +6,7 @@ type Neuron struct {
 }
 
 type NeuronState struct {
-	Id      int         `json:"id"`
+	ID      int         `json:"id"`
 	Weights IOVector    `json:"weights"`
 	Bias    NetDataType `json:"bias"`
 }
@@ -19,7 +19,7 @@ func CreateNeuron(size int) *Neuron {
 
 func (n *Neuron) Export(id int) NeuronState {
 	return NeuronState{
-		Id:      id,
+		ID:      id,
 		Weights: n.Weight,
 		Bias:    n.Bias,
 	}

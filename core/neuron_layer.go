@@ -1,4 +1,4 @@
-package Core
+package core
 
 import (
 	"strings"
@@ -15,7 +15,7 @@ type NeuronLayer struct {
 }
 
 type LayerState struct {
-	Id           int           `json:"id"`
+	ID           int           `json:"id"`
 	Neurons      []NeuronState `json:"neurons"`
 	Activator    string        `json:"activator"`
 	InputLength  int           `json:"input_length"`
@@ -24,8 +24,9 @@ type LayerState struct {
 
 func CreateNeuronLayer(inputCount int, outputCount int, activator ActivatorClass) *NeuronLayer {
 	if activator == nil {
-		activator = *CreateLinearActivator()
+		activator = CreateLinearActivator()
 	}
+
 	res := NeuronLayer{
 		neurons:   make([]*Neuron, outputCount),
 		input:     CreateIOVectorByLength(inputCount),
@@ -38,6 +39,7 @@ func CreateNeuronLayer(inputCount int, outputCount int, activator ActivatorClass
 	for i := 0; i < outputCount; i++ {
 		res.neurons[i] = CreateNeuron(inputCount)
 	}
+
 	return &res
 }
 
@@ -54,20 +56,24 @@ func (nl *NeuronLayer) ConnectToOutput(outputArray IOVector) {
 }
 
 func (nl *NeuronLayer) Evaluate() {
-	for i := 0; i < nl.outCount; i++ {
-		n := nl.neurons[i]
-		var sum NetDataType = 0
+	for idx := 0; idx < nl.outCount; idx++ {
+		neuron := nl.neurons[idx]
+
+		var sum NetDataType
+
 		for j := 0; j < nl.inCount; j++ {
-			sum += n.Weight[j] * nl.input[j]
+			sum += neuron.Weight[j] * nl.input[j]
 		}
-		sum += n.Bias
-		nl.sum[i] = sum
-		nl.output[i] = nl.activator.F(sum)
+
+		sum += neuron.Bias
+		nl.sum[idx] = sum
+		nl.output[idx] = nl.activator.F(sum)
 	}
 }
 
 func (nl *NeuronLayer) EvaluateGet() IOVector {
 	nl.Evaluate()
+
 	return nl.output
 }
 
@@ -92,44 +98,54 @@ func (nl *NeuronLayer) BackPropagate(deltaError IOVector, speed NetDataType, del
 		deltaErrNext[i] = 0
 	}
 
-	//mult := 1.0 / NetDataType(nl.inCount)
+	// mult := 1.0 / NetDataType(nl.inCount)
 	for i := 0; i < nl.outCount; i++ {
 		weights := nl.neurons[i].Weight
 		deltaError[i] *= nl.activator.D(nl.sum[i])
 		dE := deltaError[i]
+
 		for j := 0; j < nl.inCount; j++ {
 			deltaErrNext[j] += dE * weights[j]
 		}
 	}
-	//speed *= mult
+
+	// speed *= mult
 	for i := 0; i < nl.outCount; i++ {
-		n := nl.neurons[i]
-		e := speed * deltaError[i]
+		neuron := nl.neurons[i]
+		err := speed * deltaError[i]
+
 		for j := 0; j < nl.inCount; j++ {
-			n.Weight[j] -= e * nl.input[j]
+			neuron.Weight[j] -= err * nl.input[j]
 		}
-		n.Bias -= e
+
+		neuron.Bias -= err
 	}
 }
 
 func (nl *NeuronLayer) ToString() string {
 	res := make([]string, nl.outCount)
-	for i := 0; i < nl.outCount; i++ {
-		t := make([]string, nl.inCount+1)
+
+	for idx := 0; idx < nl.outCount; idx++ {
+		temp := make([]string, nl.inCount+1)
+
 		for j := 0; j < nl.inCount; j++ {
-			t[j] = FloatToFixed(nl.neurons[i].Weight[j])
+			temp[j] = FloatToFixed(nl.neurons[idx].Weight[j])
 		}
-		t[nl.inCount] = FloatToFixed(nl.neurons[i].Bias)
-		res[i] = strings.Join(t, " ")
+
+		temp[nl.inCount] = FloatToFixed(nl.neurons[idx].Bias)
+		res[idx] = strings.Join(temp, " ")
 	}
+
 	return strings.Join(res, "\n")
 }
 
-func (nl *NeuronLayer) Export(id int) LayerState {
-	ns := make([]NeuronState, nl.outCount)
+func (nl *NeuronLayer) Export(layerID int) LayerState {
+	state := make([]NeuronState, nl.outCount)
+
 	for i := 0; i < nl.outCount; i++ {
-		ns[i] = nl.neurons[i].Export(i)
+		state[i] = nl.neurons[i].Export(i)
 	}
+
 	var activator string
 	switch nl.activator.(type) {
 	case StepActivatorClass:
@@ -141,9 +157,10 @@ func (nl *NeuronLayer) Export(id int) LayerState {
 	default:
 		activator = "LinearActivatorClass"
 	}
+
 	return LayerState{
-		Id:           id,
-		Neurons:      ns,
+		ID:           layerID,
+		Neurons:      state,
 		Activator:    activator,
 		InputLength:  nl.inCount,
 		OutputLength: nl.outCount,
@@ -151,7 +168,8 @@ func (nl *NeuronLayer) Export(id int) LayerState {
 }
 
 func ImportNeuronLayer(state LayerState) *NeuronLayer {
-	var activator *ActivatorClass
+	var activator ActivatorClass
+
 	switch state.Activator {
 	case "StepActivatorClass":
 		activator = CreateStepActivator()
@@ -162,9 +180,11 @@ func ImportNeuronLayer(state LayerState) *NeuronLayer {
 	default:
 		activator = CreateLinearActivator()
 	}
+
 	if activator == nil {
 		activator = CreateLinearActivator()
 	}
+
 	outputCount := state.OutputLength
 	inputCount := state.InputLength
 	res := NeuronLayer{
@@ -174,10 +194,12 @@ func ImportNeuronLayer(state LayerState) *NeuronLayer {
 		sum:       CreateIOVectorByLength(outputCount),
 		inCount:   inputCount,
 		outCount:  outputCount,
-		activator: *activator,
+		activator: activator,
 	}
+
 	for i := 0; i < outputCount; i++ {
 		res.neurons[i] = ImportNeuron(state.Neurons[i])
 	}
+
 	return &res
 }

@@ -1,4 +1,4 @@
-package Core
+package core
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"math/rand"
 )
 
-type NetDataType float32
+type NetDataType float64
 
 func Exp(x NetDataType) NetDataType {
 	return NetDataType(math.Exp(float64(x)))
@@ -19,13 +19,13 @@ func Sqr(x NetDataType) NetDataType {
 func Abs(x NetDataType) NetDataType {
 	if x < 0 {
 		return -x
-	} else {
-		return x
 	}
+
+	return x
 }
 
 func Rand() NetDataType {
-	return NetDataType(rand.Float32())
+	return NetDataType(rand.Float64())
 }
 
 func FloatToFixed(f NetDataType) string {

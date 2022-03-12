@@ -1,4 +1,4 @@
-package Core
+package core
 
 import (
 	"fmt"
@@ -14,12 +14,12 @@ type Sample struct {
 	Speed NetDataType
 }
 
-func CreateSample(input IOVector, output IOVector) Sample {
-	return Sample{In: input, Out: output, Speed: 1}
+func CreateSample(input IOVector, output IOVector) *Sample {
+	return &Sample{In: input, Out: output, Speed: 1}
 }
 
-func CreateSampleWithSpeed(input IOVector, output IOVector, speed NetDataType) Sample {
-	return Sample{In: input, Out: output, Speed: speed}
+func CreateSampleWithSpeed(input IOVector, output IOVector, speed NetDataType) *Sample {
+	return &Sample{In: input, Out: output, Speed: speed}
 }
 
 func CreateIOVector(array ...NetDataType) IOVector {
@@ -34,7 +34,7 @@ func (s *Sample) ToString() string {
 	return fmt.Sprintf("f(%v)->%f", s.In, s.Out)
 }
 
-type SampleArray []Sample
+type SampleArray []*Sample
 
 func (s SampleArray) Shuffle() {
 	rand.Seed(time.Now().UnixNano())
