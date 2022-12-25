@@ -10,9 +10,11 @@ import (
 func TestParenthesis(t *testing.T) {
 	t.Parallel()
 
-	data, _ := json.Marshal(CreateMultilayerPerceptron(2, 1))
+	data, err := json.Marshal(CreateMultilayerPerceptron(2, 1))
+	assert.NoError(t, err)
 	assert.JSONEq(t, `{}`, string(data))
 
-	data, _ = json.Marshal(CreatePerceptron(2))
+	data, err = json.Marshal(CreatePerceptron(2))
+	assert.NoError(t, err)
 	assert.JSONEq(t, `{}`, string(data))
 }

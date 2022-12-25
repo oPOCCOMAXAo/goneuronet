@@ -1,6 +1,7 @@
 package core
 
 import (
+	"math/rand"
 	"strings"
 )
 
@@ -59,7 +60,7 @@ func (nl *NeuronLayer) Evaluate() {
 	for idx := 0; idx < nl.outCount; idx++ {
 		neuron := nl.neurons[idx]
 
-		var sum NetDataType
+		var sum float64
 
 		for j := 0; j < nl.inCount; j++ {
 			sum += neuron.Weight[j] * nl.input[j]
@@ -80,12 +81,12 @@ func (nl *NeuronLayer) EvaluateGet() IOVector {
 func (nl *NeuronLayer) InitRandom() {
 	for i := 0; i < nl.outCount; i++ {
 		for j := 0; j < nl.inCount; j++ {
-			nl.neurons[i].Weight[j] = Rand() - 0.5
+			nl.neurons[i].Weight[j] = rand.Float64() - 0.5
 		}
 	}
 }
 
-func (nl *NeuronLayer) InitConst(c NetDataType) {
+func (nl *NeuronLayer) InitConst(c float64) {
 	for i := 0; i < nl.outCount; i++ {
 		for j := 0; j < nl.inCount; j++ {
 			nl.neurons[i].Weight[j] = c
@@ -93,7 +94,7 @@ func (nl *NeuronLayer) InitConst(c NetDataType) {
 	}
 }
 
-func (nl *NeuronLayer) BackPropagate(deltaError IOVector, speed NetDataType, deltaErrNext IOVector) {
+func (nl *NeuronLayer) BackPropagate(deltaError IOVector, speed float64, deltaErrNext IOVector) {
 	for i := 0; i < nl.inCount; i++ {
 		deltaErrNext[i] = 0
 	}
@@ -148,11 +149,11 @@ func (nl *NeuronLayer) Export(layerID int) LayerState {
 
 	var activator string
 	switch nl.activator.(type) {
-	case StepActivatorClass:
+	case *StepActivatorClass:
 		activator = "StepActivatorClass"
-	case SigmoidActivatorClass:
+	case *SigmoidActivatorClass:
 		activator = "SigmoidActivatorClass"
-	case HardSigmoidActivatorClass:
+	case *HardSigmoidActivatorClass:
 		activator = "HardSigmoidActivatorClass"
 	default:
 		activator = "LinearActivatorClass"

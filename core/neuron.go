@@ -2,13 +2,13 @@ package core
 
 type Neuron struct {
 	Weight IOVector
-	Bias   NetDataType
+	Bias   float64
 }
 
 type NeuronState struct {
-	ID      int         `json:"id"`
-	Weights IOVector    `json:"weights"`
-	Bias    NetDataType `json:"bias"`
+	ID      int      `json:"id"`
+	Weights IOVector `json:"weights"`
+	Bias    float64  `json:"bias"`
 }
 
 func CreateNeuron(size int) *Neuron {

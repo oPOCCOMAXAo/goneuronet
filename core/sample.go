@@ -6,23 +6,23 @@ import (
 	"time"
 )
 
-type IOVector []NetDataType
+type IOVector []float64
 
 type Sample struct {
 	In    IOVector
 	Out   IOVector
-	Speed NetDataType
+	Speed float64
 }
 
 func CreateSample(input IOVector, output IOVector) *Sample {
 	return &Sample{In: input, Out: output, Speed: 1}
 }
 
-func CreateSampleWithSpeed(input IOVector, output IOVector, speed NetDataType) *Sample {
+func CreateSampleWithSpeed(input IOVector, output IOVector, speed float64) *Sample {
 	return &Sample{In: input, Out: output, Speed: speed}
 }
 
-func CreateIOVector(array ...NetDataType) IOVector {
+func CreateIOVector(array ...float64) IOVector {
 	return array
 }
 

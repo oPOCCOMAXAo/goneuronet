@@ -1,7 +1,9 @@
 package net
 
 import (
-	"github.com/opoccomaxao/goneuronet/core"
+	"math"
+
+	"github.com/opoccomaxao-go/neuronet/core"
 )
 
 type Perceptron struct {
@@ -25,7 +27,7 @@ func (p *Perceptron) assignInput(input core.IOVector) {
 	copy(p.input, input)
 }
 
-func (p *Perceptron) solve(input core.IOVector) core.NetDataType {
+func (p *Perceptron) solve(input core.IOVector) float64 {
 	p.assignInput(input)
 
 	return p.neuronLayer.EvaluateGet()[0]
@@ -39,7 +41,7 @@ func (p *Perceptron) InitRandom() {
 	p.neuronLayer.InitRandom()
 }
 
-func (p *Perceptron) InitConst(c core.NetDataType) {
+func (p *Perceptron) InitConst(c float64) {
 	p.neuronLayer.InitConst(c)
 }
 
@@ -50,13 +52,13 @@ func (p *Perceptron) Solve(input core.IOVector) core.IOVector {
 func (p *Perceptron) Train(
 	samples core.SampleArray,
 	epochs int,
-	maxError core.NetDataType,
+	maxError float64,
 ) (*TrainResult, error) {
 	dErr := core.CreateIOVectorByLength(1)
 	dErrNext := core.CreateIOVectorByLength(p.size + 1)
 
 	var (
-		gError core.NetDataType
+		gError float64
 		res    TrainResult
 	)
 
@@ -68,7 +70,7 @@ func (p *Perceptron) Train(
 		for _, s := range samples {
 			res := p.solve(s.In)
 			dErr[0] = res - s.Out[0]
-			gError += core.Abs(dErr[0])
+			gError += math.Abs(dErr[0])
 			p.neuronLayer.BackPropagate(dErr, s.Speed, dErrNext)
 		}
 

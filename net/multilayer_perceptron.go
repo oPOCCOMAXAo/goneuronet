@@ -1,9 +1,10 @@
 package net
 
 import (
+	"math"
 	"strings"
 
-	"github.com/opoccomaxao/goneuronet/core"
+	"github.com/opoccomaxao-go/neuronet/core"
 )
 
 type MultilayerPerceptron struct {
@@ -59,7 +60,7 @@ func (m *MultilayerPerceptron) InitRandom() {
 	}
 }
 
-func (m *MultilayerPerceptron) InitConst(c core.NetDataType) {
+func (m *MultilayerPerceptron) InitConst(c float64) {
 	for _, n := range m.neuronLayers {
 		n.InitConst(c)
 	}
@@ -94,7 +95,7 @@ func (m *MultilayerPerceptron) String() string {
 func (m *MultilayerPerceptron) Train(
 	samples core.SampleArray,
 	epochs int,
-	maxError core.NetDataType,
+	maxError float64,
 ) (*TrainResult, error) {
 	deltaErr := make([]core.IOVector, m.layerc)
 	last := m.layerc - 1
@@ -108,7 +109,7 @@ func (m *MultilayerPerceptron) Train(
 	count := m.layersLength[last]
 
 	var (
-		gError core.NetDataType
+		gError float64
 		res    TrainResult
 	)
 
@@ -123,7 +124,7 @@ func (m *MultilayerPerceptron) Train(
 
 			for i := 0; i < count; i++ {
 				dErr[i] = buffer[i] - sample.Out[i]
-				gError += core.Abs(dErr[i])
+				gError += math.Abs(dErr[i])
 			}
 
 			for i := last - 1; i >= 0; i-- {

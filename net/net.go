@@ -6,7 +6,7 @@ import (
 	"math"
 	"os"
 
-	"github.com/opoccomaxao/goneuronet/core"
+	"github.com/opoccomaxao-go/neuronet/core"
 	"github.com/pkg/errors"
 )
 
@@ -15,12 +15,12 @@ const Infinity = math.MaxInt64
 type Net interface {
 	Solve(input core.IOVector) core.IOVector
 	SetActivator(class core.ActivatorClass)
-	Train(samples core.SampleArray, numEpochs int, maxError core.NetDataType) (*TrainResult, error)
+	Train(samples core.SampleArray, numEpochs int, maxError float64) (*TrainResult, error)
 	Export() State
 }
 
 type TrainResult struct {
-	Errors []core.NetDataType
+	Errors []float64
 }
 
 type LayerConnection struct {

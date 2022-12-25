@@ -3,7 +3,7 @@ package net
 import (
 	"testing"
 
-	"github.com/opoccomaxao/goneuronet/core"
+	"github.com/opoccomaxao-go/neuronet/core"
 )
 
 func TestPerceptron(t *testing.T) {

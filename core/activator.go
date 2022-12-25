@@ -1,18 +1,22 @@
 package core
 
+import (
+	"math"
+)
+
 type ActivatorClass interface {
-	F(NetDataType) NetDataType // F forward Function
-	D(NetDataType) NetDataType // D backward Derivative
+	F(float64) float64 // F forward Function
+	D(float64) float64 // D backward Derivative
 }
 
 type SigmoidActivatorClass struct{}
 
-func (s SigmoidActivatorClass) F(x NetDataType) NetDataType {
-	return 1.0 / (1.0 + Exp(-x))
+func (*SigmoidActivatorClass) F(x float64) float64 {
+	return 1.0 / (1.0 + math.Exp(-x))
 }
 
-func (s SigmoidActivatorClass) D(x NetDataType) NetDataType {
-	exp := Exp(-x)
+func (*SigmoidActivatorClass) D(x float64) float64 {
+	exp := math.Exp(-x)
 
 	return exp / Sqr(exp+1.0)
 }
@@ -23,7 +27,7 @@ func CreateSigmoidActivator() ActivatorClass {
 
 type HardSigmoidActivatorClass struct{}
 
-func (HardSigmoidActivatorClass) F(value NetDataType) NetDataType {
+func (*HardSigmoidActivatorClass) F(value float64) float64 {
 	if value < -2.5 {
 		return 0
 	}
@@ -35,7 +39,7 @@ func (HardSigmoidActivatorClass) F(value NetDataType) NetDataType {
 	return 0.2*value + 0.5
 }
 
-func (HardSigmoidActivatorClass) D(x NetDataType) NetDataType {
+func (*HardSigmoidActivatorClass) D(x float64) float64 {
 	if x < -2.5 {
 		return 0
 	}
@@ -53,11 +57,11 @@ func CreateHardSigmoidActivatorClass() ActivatorClass {
 
 type LinearActivatorClass struct{}
 
-func (LinearActivatorClass) F(x NetDataType) NetDataType {
+func (*LinearActivatorClass) F(x float64) float64 {
 	return x
 }
 
-func (LinearActivatorClass) D(x NetDataType) NetDataType {
+func (*LinearActivatorClass) D(x float64) float64 {
 	return 1
 }
 
@@ -67,7 +71,7 @@ func CreateLinearActivator() ActivatorClass {
 
 type StepActivatorClass struct{}
 
-func (StepActivatorClass) F(f NetDataType) NetDataType {
+func (*StepActivatorClass) F(f float64) float64 {
 	if f > 0 {
 		return 1
 	}
@@ -75,7 +79,7 @@ func (StepActivatorClass) F(f NetDataType) NetDataType {
 	return 0
 }
 
-func (StepActivatorClass) D(x NetDataType) NetDataType {
+func (*StepActivatorClass) D(x float64) float64 {
 	return 1
 }
 

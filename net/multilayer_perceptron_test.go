@@ -2,10 +2,11 @@ package net
 
 import (
 	_ "embed"
+	"math"
 	"os"
 	"testing"
 
-	"github.com/opoccomaxao/goneuronet/core"
+	"github.com/opoccomaxao-go/neuronet/core"
 	"github.com/stretchr/testify/require"
 )
 
@@ -45,7 +46,7 @@ func TestMultilayerPerceptronTrainSaveLoad(t *testing.T) {
 
 	var (
 		samples  = CreateXORSamples()
-		maxError = core.NetDataType(0.00001)
+		maxError = float64(0.00001)
 	)
 
 	res, _ := net.Train(samples, Infinity, maxError)
@@ -56,7 +57,7 @@ func TestMultilayerPerceptronTrainSaveLoad(t *testing.T) {
 		solved := net.Solve(s.In)
 		sample := s.Out[0]
 
-		if core.Abs(sample-solved[0]) > maxError {
+		if math.Abs(sample-solved[0]) > maxError {
 			t.Errorf("%s != %f\n", s.ToString(), solved)
 		}
 	}
@@ -70,7 +71,7 @@ func TestMultilayerPerceptronTrainSaveLoad(t *testing.T) {
 		solved := imported.Solve(s.In)
 		sample := s.Out[0]
 
-		if core.Abs(sample-solved[0]) > maxError {
+		if math.Abs(sample-solved[0]) > maxError {
 			t.Errorf("%s != %f\n", s.ToString(), solved)
 		}
 	}
